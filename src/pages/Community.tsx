@@ -34,10 +34,14 @@ export default function Community() {
             if (res.ok) {
                 const data = await res.json();
                 setPosts(data);
+                setError('');
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                setError(errData.message || `Failed to load posts (${res.status})`);
             }
         } catch (error) {
             console.error("Failed to fetch posts", error);
-            setError("Failed to load posts. Please ensure the backend server is running.");
+            setError("Failed to load posts. Network error or server unreachable.");
         } finally {
             setLoading(false);
         }
