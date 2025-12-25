@@ -53,6 +53,7 @@ export default function Community() {
 
         setSubmitting(true);
         try {
+            console.log("Submitting post:", { organization: selectedOrg, channel: activeChannel, content: newPostContent });
             const res = await fetch('/api/posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -62,6 +63,7 @@ export default function Community() {
                     content: newPostContent
                 })
             });
+            console.log("Post response status:", res.status);
 
             if (res.ok) {
                 setNewPostContent('');
