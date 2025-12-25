@@ -61,19 +61,34 @@ export default function News() {
         }
 
         try {
-            const query = buildQuery(city);
-            // Construct URL with params manually to ensure correct formatting
-            const url = new URL(BASE_URL);
-            url.searchParams.append('q', query);
-            url.searchParams.append('language', 'en');
-            url.searchParams.append('sortBy', 'publishedAt');
-            url.searchParams.append('pageSize', '10');
-            url.searchParams.append('page', pageNum.toString());
-            url.searchParams.append('apiKey', API_KEY);
-            // Optional: Filter by trusted domains if needed, but 'everything' endpoint is broad.
-            // url.searchParams.append('domains', 'reuters.com,bloomberg.com,...'); 
+            // ENVIRONMENT DETECTION
+            // Localhost: Direct call (Developer plan allows browser requests from localhost)
+            // Production: Proxy (Developer plan forbids browser requests, must use server)
+            const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
 
-            const res = await fetch(url.toString());
+            let res;
+
+            if (isLocal) {
+                // --- LOCALHOST: DIRECT CALL (EXISTING BEHAVIOR) ---
+                console.log("Environment: Localhost. Using direct NewsAPI call.");
+                const query = buildQuery(city);
+                const url = new URL(BASE_URL);
+                url.searchParams.append('q', query);
+                url.searchParams.append('language', 'en');
+                url.searchParams.append('sortBy', 'publishedAt');
+                url.searchParams.append('pageSize', '10');
+                url.searchParams.append('page', pageNum.toString());
+                url.searchParams.append('apiKey', API_KEY);
+                res = await fetch(url.toString());
+            } else {
+                // --- PRODUCTION: SERVERLESS PROXY ---
+                console.log("Environment: Production. Using /api/news proxy.");
+                const url = new URL('/api/news', window.location.origin);
+                if (city) url.searchParams.append('city', city);
+                url.searchParams.append('page', pageNum.toString());
+                res = await fetch(url.toString());
+            }
+
             const data = await res.json();
 
             if (data.status === 'error') {
@@ -88,6 +103,7 @@ export default function News() {
             setTotalResults(data.totalResults);
 
         } catch (err: any) {
+            console.error("News fetch error:", err);
             setError(err.message || 'Unable to load news right now. Please try again later.');
         } finally {
             setLoading(false);
