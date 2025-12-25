@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Globe, ChevronRight, Clock, Building, X, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
-import { cn } from '../lib/utils';
 
 // Types
 interface Article {

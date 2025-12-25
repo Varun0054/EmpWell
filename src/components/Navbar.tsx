@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { MessageCircle, Briefcase, Users, Newspaper, Leaf } from 'lucide-react';
 import { cn } from '../lib/utils';

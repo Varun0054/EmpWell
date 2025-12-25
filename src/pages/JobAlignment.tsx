@@ -27,7 +27,7 @@ export default function JobAlignment() {
         }
     };
 
-    const addCustomSkill = (e: React.KeyboardEvent | React.MouseEvent) => {
+    const addCustomSkill = (_e: React.KeyboardEvent | React.MouseEvent) => {
         if (customSkill.trim() && !selectedSkills.includes(customSkill.trim())) {
             setSelectedSkills(prev => [...prev, customSkill.trim()]);
             setCustomSkill('');
