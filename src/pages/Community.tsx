@@ -19,6 +19,7 @@ export default function Community() {
     const [posts, setPosts] = useState<any[]>([]);
     const [newPostContent, setNewPostContent] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
     // Fetch Posts
@@ -36,6 +37,7 @@ export default function Community() {
             }
         } catch (error) {
             console.error("Failed to fetch posts", error);
+            setError("Failed to load posts. Please ensure the backend server is running.");
         } finally {
             setLoading(false);
         }
@@ -197,6 +199,18 @@ export default function Community() {
                         <div className="space-y-4">
                             {loading && (
                                 <div className="text-center py-10 text-calm-400">Loading community feed...</div>
+                            )}
+
+                            {!loading && error && (
+                                <div className="bg-red-50 p-4 rounded-xl border border-red-100 text-center">
+                                    <p className="text-red-600 text-sm mb-2">{error}</p>
+                                    <button
+                                        onClick={fetchPosts}
+                                        className="text-xs text-red-700 font-medium underline hover:text-red-800"
+                                    >
+                                        Try Again
+                                    </button>
+                                </div>
                             )}
 
                             {!loading && (

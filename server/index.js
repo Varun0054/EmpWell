@@ -24,6 +24,10 @@ app.get('/', (req, res) => {
 import postRoutes from './routes/posts.js';
 app.use('/api/posts', postRoutes);
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+export default app;
