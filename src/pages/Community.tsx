@@ -65,10 +65,15 @@ export default function Community() {
 
             if (res.ok) {
                 setNewPostContent('');
+                setError(''); // Clear any previous errors
                 fetchPosts(); // Refresh list
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                setError(errData.message || `Failed to create post (${res.status})`);
             }
         } catch (error) {
             console.error("Failed to create post", error);
+            setError("Failed to create post. Please try again.");
         } finally {
             setSubmitting(false);
         }
