@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Layout } from '../components/Layout';
 import { motion } from 'framer-motion';
-import { ArrowRight, ExternalLink, Search, MapPin, Lock, ShieldCheck, AlertCircle } from 'lucide-react';
+import { ArrowRight, ExternalLink, Search, MapPin, Lock, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useAuth } from '../context/AuthContext';
 
 export default function JobAlignment() {
+    const { isAuthenticated, openAuthModal } = useAuth();
     const [step, setStep] = useState<'input' | 'analyzing' | 'gate' | 'results'>('input');
     const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
     const [experience, setExperience] = useState('0-2 Years');
     const [location, setLocation] = useState('');
-    const [accessCode, setAccessCode] = useState('');
-    const [error, setError] = useState('');
+
 
     const [customSkill, setCustomSkill] = useState('');
 
@@ -37,24 +38,31 @@ export default function JobAlignment() {
     const handleAnalyze = () => {
         if (selectedSkills.length === 0) return;
         setStep('analyzing');
-        // ... existing logic ...
+
         setTimeout(() => {
-            setStep('gate');
+            // Updated Logic: Check Authentication instead of simple delay
+            if (isAuthenticated) {
+                setStep('results');
+            } else {
+                setStep('gate');
+            }
         }, 1500);
     };
 
     const handleUnlock = () => {
-        // ... existing logic ...
-        // Mock Validation Logic
-        if (accessCode.trim().toUpperCase() === 'EMPWELL2024') {
-            setStep('results');
-            setError('');
-        } else {
-            setError('Invalid access code. Please try again.');
-        }
+        openAuthModal();
+        // The multimodal flow will handle login.
+        // Upon successful login, the user stays on this page, and we need to react to auth state change.
     };
 
-    // ... existing helper functions ...
+    // React to Auth change
+    React.useEffect(() => {
+        if (step === 'gate' && isAuthenticated) {
+            setStep('results');
+        }
+    }, [isAuthenticated, step]);
+
+
     // Helper to generate search keywords based on experience
     const getExperienceKeyword = (exp: string) => {
         switch (exp) {
@@ -117,8 +125,6 @@ export default function JobAlignment() {
                                             {skill}
                                         </button>
                                     ))}
-
-                                    {/* User Added Skills */}
                                     {selectedSkills.filter(s => !commonSkills.includes(s)).map(skill => (
                                         <button
                                             key={skill}
@@ -150,7 +156,6 @@ export default function JobAlignment() {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Experience */}
                                 <div>
                                     <label className="block text-sm font-medium text-calm-700 mb-3">Experience Level</label>
                                     <select
@@ -165,7 +170,6 @@ export default function JobAlignment() {
                                     </select>
                                 </div>
 
-                                {/* Location */}
                                 <div>
                                     <label className="block text-sm font-medium text-calm-700 mb-3">Preferred Location</label>
                                     <div className="relative">
@@ -214,30 +218,15 @@ export default function JobAlignment() {
                         <div className="w-12 h-12 bg-sage-50 rounded-full flex items-center justify-center mx-auto mb-4 text-sage-600">
                             <Lock size={24} />
                         </div>
-                        <h2 className="text-xl font-semibold text-calm-800 mb-2">Access Control</h2>
-                        <p className="text-calm-500 mb-6 text-sm">Please enter your EmpWell access code to view live market data.</p>
-
-                        <input
-                            type="text"
-                            placeholder="Enter Access Code"
-                            value={accessCode}
-                            onChange={(e) => setAccessCode(e.target.value)}
-                            className="w-full text-center p-3 rounded-xl border border-calm-200 bg-calm-50 mb-4 focus:ring-2 focus:ring-sage-200 focus:outline-none uppercase tracking-widest"
-                        />
-
-                        {error && (
-                            <div className="text-red-500 text-xs mb-4 bg-red-50 p-2 rounded-lg flex items-center justify-center gap-2">
-                                <AlertCircle size={12} /> {error}
-                            </div>
-                        )}
+                        <h2 className="text-xl font-semibold text-calm-800 mb-2">Login Required</h2>
+                        <p className="text-calm-500 mb-6 text-sm">Please login to view your personalized job matches.</p>
 
                         <button
                             onClick={handleUnlock}
-                            className="w-full bg-calm-800 text-white py-3 rounded-xl font-medium hover:bg-calm-900 transition-colors"
+                            className="w-full bg-calm-800 text-white py-3 rounded-xl font-medium hover:bg-calm-900 transition-colors flex items-center justify-center gap-2"
                         >
-                            Unlock Results
+                            <Lock size={16} /> Login to Access
                         </button>
-                        <p className="text-xs text-calm-400 mt-4">Try code: <strong>EMPWELL2024</strong></p>
                     </motion.div>
                 )}
 
@@ -247,6 +236,7 @@ export default function JobAlignment() {
                         animate={{ opacity: 1 }}
                         className="space-y-6"
                     >
+                        {/* (Results logic unchanged) */}
                         <div className="bg-sage-50 border border-sage-100 p-4 rounded-xl flex items-start gap-3">
                             <ShieldCheck className="w-5 h-5 text-sage-700 flex-shrink-0 mt-0.5" />
                             <div>
@@ -258,7 +248,6 @@ export default function JobAlignment() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* LinkedIn Card */}
                             <a
                                 href={generateUrl('linkedin')}
                                 target="_blank"
@@ -277,7 +266,6 @@ export default function JobAlignment() {
                                 </div>
                             </a>
 
-                            {/* Indeed Card */}
                             <a
                                 href={generateUrl('indeed')}
                                 target="_blank"

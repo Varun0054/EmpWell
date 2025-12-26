@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Layout } from '../components/Layout';
-import { Shield, Building, MessageSquare, Heart, Info, ShieldCheck } from 'lucide-react';
+import { Shield, Building, Heart, ShieldCheck, Lock, ArrowDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
+import { useAuth } from '../context/AuthContext';
 
 const CHANNELS = [
     { id: 'stress', label: 'Workplace Stress', icon: '😩' },
@@ -14,6 +15,7 @@ const CHANNELS = [
 ];
 
 export default function Community() {
+    const { isAuthenticated, openAuthModal } = useAuth();
     const [selectedOrg, setSelectedOrg] = useState('Tech Corp');
     const [activeChannel, setActiveChannel] = useState('stress');
     const [posts, setPosts] = useState<any[]>([]);
@@ -49,11 +51,15 @@ export default function Community() {
 
     // Create Post
     const handleCreatePost = async () => {
+        if (!isAuthenticated) {
+            openAuthModal();
+            return;
+        }
+
         if (!newPostContent.trim() || newPostContent.length < 20) return;
 
         setSubmitting(true);
         try {
-            console.log("Submitting post:", { organization: selectedOrg, channel: activeChannel, content: newPostContent });
             const res = await fetch('/api/posts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -63,7 +69,6 @@ export default function Community() {
                     content: newPostContent
                 })
             });
-            console.log("Post response status:", res.status);
 
             if (res.ok) {
                 setNewPostContent('');
@@ -83,6 +88,10 @@ export default function Community() {
 
     // Handle Reaction
     const handleReaction = async (postId: string, type: 'notAlone' | 'helpful') => {
+        if (!isAuthenticated) {
+            openAuthModal();
+            return;
+        }
         try {
             const res = await fetch(`/api/posts/${postId}/react`, {
                 method: 'POST',
@@ -117,7 +126,7 @@ export default function Community() {
                         <Shield className="w-4 h-4 text-sage-600 flex-shrink-0" />
                         <div className="flex flex-col">
                             <span className="text-xs font-semibold text-sage-800">AI Moderated Safe Space</span>
-                            <span className="text-[10px] text-sage-600">Zero tolerance for harassment</span>
+                            <span className="text-xs text-sage-600">Zero tolerance for harassment</span>
                         </div>
                     </div>
                 </div>
@@ -163,34 +172,31 @@ export default function Community() {
                                 </button>
                             ))}
                         </div>
-
-                        {/* Safety Notice Sidebar */}
-                        <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-                            <div className="flex gap-2">
-                                <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                                <div>
-                                    <h4 className="text-xs font-bold text-blue-800 mb-1">Community Guidelines</h4>
-                                    <ul className="text-xs text-blue-700 space-y-1 list-disc pl-3">
-                                        <li>Be respectful and empathetic.</li>
-                                        <li>No naming specific individuals.</li>
-                                        <li>Support, don't debate.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Feed Area */}
                     <div className="md:col-span-9 space-y-6 order-1 md:order-2">
 
-                        {/* Input Area */}
-                        <div className="bg-white p-4 rounded-2xl border border-calm-200 shadow-sm flex flex-col gap-3">
+                        {/* Input Area (Gated) */}
+                        <div className="bg-white p-4 rounded-2xl border border-calm-200 shadow-sm flex flex-col gap-3 relative">
+                            {!isAuthenticated && (
+                                <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 rounded-2xl flex items-center justify-center border border-calm-200">
+                                    <button
+                                        onClick={openAuthModal}
+                                        className="bg-sage-600 text-white px-6 py-2.5 rounded-full font-medium shadow-md hover:bg-sage-700 transition-transform hover:scale-105 flex items-center gap-2"
+                                    >
+                                        <Lock size={16} /> Login to Post
+                                    </button>
+                                </div>
+                            )}
+
                             <textarea
                                 value={newPostContent}
                                 onChange={(e) => setNewPostContent(e.target.value)}
                                 placeholder={`Share your experience in #${CHANNELS.find(c => c.id === activeChannel)?.label}... (Anonymous)`}
                                 className="w-full bg-calm-50 rounded-xl px-4 py-3 text-sm text-calm-800 placeholder:text-calm-400 focus:outline-none focus:ring-1 focus:ring-calm-300 resize-none"
                                 rows={3}
+                                disabled={!isAuthenticated}
                             />
                             <div className="flex justify-between items-center">
                                 <span className={cn("text-xs", newPostContent.length > 0 && newPostContent.length < 20 ? "text-red-500" : "text-calm-400")}>
@@ -208,6 +214,7 @@ export default function Community() {
 
                         {/* Posts */}
                         <div className="space-y-4">
+                            {/* ... (Error and Loading states stay same) ... */}
                             {loading && (
                                 <div className="text-center py-10 text-calm-400">Loading community feed...</div>
                             )}
@@ -215,12 +222,7 @@ export default function Community() {
                             {!loading && error && (
                                 <div className="bg-red-50 p-4 rounded-xl border border-red-100 text-center">
                                     <p className="text-red-600 text-sm mb-2">{error}</p>
-                                    <button
-                                        onClick={fetchPosts}
-                                        className="text-xs text-red-700 font-medium underline hover:text-red-800"
-                                    >
-                                        Try Again
-                                    </button>
+                                    <button onClick={fetchPosts} className="text-xs text-red-700 font-medium underline">Try Again</button>
                                 </div>
                             )}
 
@@ -231,7 +233,6 @@ export default function Community() {
                                             key={post._id}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, scale: 0.95 }}
                                             className="bg-white p-6 rounded-2xl border border-calm-200 shadow-sm hover:shadow-md transition-shadow"
                                         >
                                             <div className="flex items-center justify-between mb-4">
@@ -273,20 +274,24 @@ export default function Community() {
                                     ))}
                                 </AnimatePresence>
                             )}
-
-                            {!loading && posts.length === 0 && (
-                                <div className="flex flex-col items-center justify-center py-20 text-center">
-                                    <div className="w-16 h-16 bg-calm-50 rounded-full flex items-center justify-center mb-4 text-calm-300">
-                                        <MessageSquare size={24} />
-                                    </div>
-                                    <h3 className="text-calm-800 font-medium">Quiet in here.</h3>
-                                    <p className="text-calm-500 text-sm mt-1">Be the first to share safely in this channel.</p>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Floating Scroll Down Button */}
+            <motion.button
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+                className="fixed bottom-8 right-8 p-3 bg-sage-600 text-white rounded-full shadow-lg hover:bg-sage-700 transition-colors z-40 border border-sage-500"
+                title="Scroll to bottom"
+            >
+                <ArrowDown size={24} />
+            </motion.button>
+
         </Layout>
     );
 }

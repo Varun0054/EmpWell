@@ -1,116 +1,70 @@
-# 🌿 EmpWell - Employee Wellbeing & Career Alignment Platform
+# EmpWell - Employee Wellbeing Platform
 
-![EmpWell-Banner](https://img.shields.io/badge/Status-Active-success?style=for-the-badge) ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+EmpWell is a comprehensive wellbeing platform designed to support employees through AI-driven assistance, job alignment tools, community support, and corporate insights.
 
-> **"Designed for your peace of mind."**
+## Features
 
-EmpWell is a holistic platform dedicated to supporting employees through career transitions, workplace stress, and professional growth. It combines psychological safety with practical career tools to create a supportive ecosystem for the modern workforce.
+-   **AI Assistant**: Private, judgment-free wellbeing companion.
+-   **Job Framework**: Live job market explorer with skill alignment.
+-   **Community**: Anonymous, safe space for sharing workplace experiences.
+-   **Insights**: Curated corporate news and trends.
+-   **Profile**: Personalized user dashboard.
 
----
+## Tech Stack
 
-## ✨ Key Features
+-   **Frontend**: React, TypeScript, Vite, Tailwind CSS, Framer Motion, Lucide Icons.
+-   **Backend**: Node.js, Express, MongoDB, Mongoose, JWT Authentication.
 
-### 1. 🤖 AI Wellbeing Assistant
-A private, judgment-free zone to unpack your thoughts.
-*   **Safe Space**: AI-powered companion for venting and stress management.
-*   **Privacy First**: Conversations are local and anonymous.
-
-### 2. 💼 Live Job Framework
-Cut through the noise with targeted opportunity matching.
-*   **Skill-Based Search**: Input your core skills and experience level.
-*   **Live Market Data**: Direct deep-links to active listings on LinkedIn and Indeed.
-*   **No Scraping**: 100% compliant, real-time query generation.
-
-### 3. 👥 Anonymous Community
-A psychologically safe space to share experiences, not identities.
-*   **Channel-Based**: Dedicated spaces for general chatter, mental health, and career advice.
-*   **Organization-Specific**: Connect with verified peers from your company (Beta).
-*   **Zero Tolerance**: AI-moderated to ensure a supportive environment.
-
-### 4. 📰 Corporate Insights
-Stay informed without the panic.
-*   **Curated News**: Filtered updates on layoffs, restructuring, and policies.
-*   **Calm UI**: Information presented neutrally to prevent anxiety.
-*   **Global Reach**: Search for corporate happenings in specific cities or regions.
-
----
-
-## 🛠️ Tech Stack
-
-*   **Frontend**: React (TypeScript) + Vite
-*   **Styling**: Tailwind CSS + Lucide React (Icons) + Framer Motion (Animations)
-*   **Backend**: Node.js + Express (Community Features)
-*   **Database**: MongoDB Atlas
-*   **Deployment**: Vercel (Frontend)
-
----
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-*   Node.js (v18 or higher)
-*   npm or yarn
+
+-   Node.js (v18+)
+-   MongoDB Atlas Account
+-   NewsAPI Key
 
 ### Installation
 
 1.  **Clone the repository**
     ```bash
-    git clone https://github.com/Varun0054/EmpWell.git
-    cd EmpWell
+    git clone https://github.com/yourusername/empwell.git
+    cd empwell
     ```
 
-2.  **Install Application Dependencies**
+2.  **Frontend Setup**
     ```bash
     npm install
-    ```
-
-3.  **Setup Environment Variables**
-    Create a `.env.local` file in the root directory:
-    ```env
-    VITE_NEWS_API_KEY=your_news_api_key_here
-    ```
-
-4.  **Run the Development Server**
-    ```bash
+    cp .env.example .env.local
+    # Edit .env.local and add your VITE_NEWS_API_KEY
     npm run dev
     ```
 
-### Backend Setup (Optional for Community Features)
-1.  Navigate to the server directory: `cd server`
-2.  Install dependencies: `npm install`
-3.  Run the backend: `npm run dev`
+3.  **Backend Setup**
+    ```bash
+    cd server
+    npm install
+    # Create a .env file in the server directory with:
+    # MONGO_URI=your_mongodb_connection_string
+    # JWT_SECRET=your_jwt_secret
+    # PORT=5000
+    npm run dev
+    ```
 
----
+## Environment Variables
 
-## 📸 Screenshots
+### Frontend (`.env.local`)
+-   `VITE_NEWS_API_KEY`: API key from [NewsAPI.org](https://newsapi.org).
 
-| Dashboard | Job Framework |
-|:---:|:---:|
-| *Intuitive navigation* | *Skill-based matching* |
+### Backend (`server/.env`)
+-   `MONGO_URI`: MongoDB connection string.
+-   `JWT_SECRET`: Secret key for signing JWT tokens.
+-   `PORT`: Server port (default: 5000).
 
-| Community | AI Assistant |
-|:---:|:---:|
-| *Anonymous & Safe* | *Private Companion* |
+## Project Structure
 
----
+-   `/src`: Frontend source code (Pages, Components, Context).
+-   `/server`: Backend API source code (Models, Controllers, Routes).
 
-## 🤝 Contributing
+## License
 
-We welcome contributions to make workplace wellbeing accessible to everyone.
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
-
----
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-<p align="center">
-  Developed with ❤️ by V@run
-</p>
+MIT

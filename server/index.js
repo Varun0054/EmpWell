@@ -22,7 +22,10 @@ app.get('/', (req, res) => {
 
 // Post Routes will be imported here
 import postRoutes from './routes/posts.js';
+import authRoutes from './routes/auth.js';
+
 app.use('/api/posts', postRoutes);
+app.use('/api/auth', authRoutes);
 
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {

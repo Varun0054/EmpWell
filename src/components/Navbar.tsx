@@ -1,8 +1,11 @@
-import { NavLink } from 'react-router-dom';
-import { MessageCircle, Briefcase, Users, Newspaper, Leaf } from 'lucide-react';
+import { NavLink, Link } from 'react-router-dom';
+import { MessageCircle, Briefcase, Users, Newspaper, Leaf, User } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useAuth } from '../context/AuthContext';
 
-export function Navbar() {
+export default function Navbar() {
+    const { user, isAuthenticated, openAuthModal } = useAuth();
+
     const navItems = [
         { to: '/', label: 'Assistant', icon: MessageCircle },
         { to: '/job-alignment', label: 'Job Framework', icon: Briefcase },
@@ -41,9 +44,22 @@ export function Navbar() {
                     ))}
                 </div>
 
-                {/* Placeholder for User Profile */}
-                <div className="w-8 h-8 rounded-full bg-sage-100 flex items-center justify-center text-sage-600 text-xs font-medium">
-                    JD
+                {/* User Profile / Login */}
+                <div className="flex items-center">
+                    {isAuthenticated ? (
+                        <Link to="/profile" className="w-8 h-8 rounded-full bg-sage-100 flex items-center justify-center text-sage-600 hover:bg-sage-200 transition-colors" title={user?.name}>
+                            <span className="text-xs font-medium">
+                                {user?.name ? user.name.charAt(0).toUpperCase() : <User size={16} />}
+                            </span>
+                        </Link>
+                    ) : (
+                        <button
+                            onClick={openAuthModal}
+                            className="px-4 py-1.5 bg-sage-600 text-white text-sm font-medium rounded-full hover:bg-sage-700 transition-colors shadow-sm"
+                        >
+                            Login
+                        </button>
+                    )}
                 </div>
             </div>
         </nav>
