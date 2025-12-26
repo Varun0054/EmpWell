@@ -36,20 +36,6 @@ const postSchema = new mongoose.Schema({
     }
 });
 
-// Real-time hook placeholder
-postSchema.post('save', function (doc) {
-    // console.log('This is where we would emit a socket event for a new post');
-    // io.to(doc.channel).emit('newPost', doc);
-});
 
-// AI Moderation hook placeholder
-postSchema.pre('save', function (next) {
-    // console.log('This is where AI moderation would check the content');
-    // if (aiCheck(this.content).isUnsafe) throw new Error("Content unsafe");
-
-    // Basic sanity check to strip HTML (placeholder for more robust sanitization)
-    // this.content = this.content.replace(/<[^>]*>?/gm, '');
-    next();
-});
 
 export default mongoose.model('Post', postSchema);
