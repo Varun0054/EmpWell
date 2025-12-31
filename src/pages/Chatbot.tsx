@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Trash2 } from 'lucide-react';
 import { Layout } from '../components/Layout';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
@@ -43,14 +43,29 @@ export default function Chatbot() {
     const [isTyping, setIsTyping] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    const [messages, setMessages] = useState<Message[]>([
-        {
+    const [messages, setMessages] = useState<Message[]>(() => {
+        const saved = localStorage.getItem('empwell_chat_messages');
+        if (saved) {
+            try {
+                return JSON.parse(saved).map((msg: any) => ({
+                    ...msg,
+                    timestamp: new Date(msg.timestamp)
+                }));
+            } catch (e) {
+                console.error("Failed to parse chat history", e);
+            }
+        }
+        return [{
             id: '1',
             role: 'assistant',
             content: "Hello. I'm your wellbeing assistant. I'm here to listen without judgment. How are you feeling today?",
             timestamp: new Date(),
-        },
-    ]);
+        }];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('empwell_chat_messages', JSON.stringify(messages));
+    }, [messages]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -119,17 +134,38 @@ export default function Chatbot() {
         }
     };
 
+    const handleClear = () => {
+        if (window.confirm("Start a new conversation? This will clear your current chat history.")) {
+            setMessages([{
+                id: '1',
+                role: 'assistant',
+                content: "Hello. I'm your wellbeing assistant. I'm here to listen without judgment. How are you feeling today?",
+                timestamp: new Date(),
+            }]);
+            localStorage.removeItem('empwell_chat_messages');
+        }
+    };
+
     return (
         <Layout>
             <div className="flex flex-col h-[calc(100vh-10rem)] md:h-[calc(100vh-12rem)] max-w-3xl mx-auto">
 
                 {/* Header Information */}
-                <div className="mb-4 md:mb-6 text-center space-y-2">
+                <div className="mb-4 md:mb-6 text-center space-y-2 relative">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sage-100 text-sage-700 text-xs font-medium">
                         <Sparkles className="w-3 h-3" />
                         <span>AI Powered & Private</span>
                     </div>
-                    <h1 className="text-2xl font-semibold text-calm-800">Wellbeing Companion</h1>
+                    <div className="relative">
+                        <h1 className="text-2xl font-semibold text-calm-800">Wellbeing Companion</h1>
+                        <button
+                            onClick={handleClear}
+                            className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-calm-400 hover:text-red-500 hover:bg-calm-50 rounded-full transition-colors"
+                            title="Clear Chat History"
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    </div>
                     <p className="text-calm-500 text-sm">A judgement-free zone to unpack your thoughts.</p>
                 </div>
 
