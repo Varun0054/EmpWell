@@ -26,6 +26,8 @@ import authRoutes from './routes/auth.js';
 
 app.use('/api/posts', postRoutes);
 app.use('/api/auth', authRoutes);
+import chatRoutes from './routes/chat.js';
+app.use('/api/chat', chatRoutes);
 
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {

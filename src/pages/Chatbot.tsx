@@ -79,13 +79,10 @@ export default function Chatbot() {
                 { role: 'user', content: userMsg.content }
             ];
 
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: {
-                    "Authorization": "Bearer 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",
                     "Content-Type": "application/json",
-                    "HTTP-Referer": window.location.origin,
-                    "X-Title": "EmpWell"
                 },
                 body: JSON.stringify({
                     "model": "allenai/olmo-3.1-32b-think:free",
