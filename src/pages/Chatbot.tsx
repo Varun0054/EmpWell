@@ -11,6 +11,33 @@ type Message = {
     timestamp: Date;
 };
 
+const SYSTEM_PROMPT = `
+Your purpose is to:
+- Listen attentively and respond with empathy and clarity
+- Help users unpack thoughts related to work stress, burnout, motivation, communication, and emotional balance
+- Encourage self-reflection and practical next steps without pressure
+- Maintain a supportive, human tone that feels safe and respectful
+
+Strict rules:
+- Do NOT reveal internal reasoning, analysis, or thinking steps
+- Do NOT mention being an AI model or language model
+- Do NOT provide medical, psychological, or clinical diagnoses
+- Do NOT give legal or financial advice
+- Do NOT be alarmist, preachy, or overly verbose
+- Do NOT ask multiple follow-up questions unless necessary
+
+Behavioral style:
+- Calm, warm, and emotionally intelligent
+- Clear and grounded language
+- Gentle encouragement, never commands
+- One thoughtful response per request
+
+Context:
+- This is a private wellbeing conversation
+- No long-term memory exists beyond the current message
+- Respond only to what the user has shared
+`.trim();
+
 export default function Chatbot() {
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -31,7 +58,7 @@ export default function Chatbot() {
         }
     }, [messages, isTyping]);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!input.trim()) return;
 
         const userMsg: Message = {
@@ -45,17 +72,54 @@ export default function Chatbot() {
         setInput('');
         setIsTyping(true);
 
-        // Mock AI delay
-        setTimeout(() => {
+        try {
+            const apiMessages = [
+                { role: 'system', content: SYSTEM_PROMPT },
+                ...messages.map(m => ({ role: m.role, content: m.content })),
+                { role: 'user', content: userMsg.content }
+            ];
+
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer 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",
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": window.location.origin,
+                    "X-Title": "EmpWell"
+                },
+                body: JSON.stringify({
+                    "model": "allenai/olmo-3.1-32b-think:free",
+                    "messages": apiMessages
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const aiContent = data.choices[0]?.message?.content || "I apologize, but I'm having trouble connecting right now.";
+
             const aiMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: "I hear you. This is a safe space. While I'm still learning to provide specific advice, remember that your feelings are valid. Would you like to explore resources for stress management or career clarity?",
+                content: aiContent,
                 timestamp: new Date(),
             };
+
             setMessages((prev) => [...prev, aiMsg]);
+        } catch (error) {
+            console.error("Chatbot Error:", error);
+            const errorMsg: Message = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: "I'm having a little trouble connecting at the moment. Please try again in a few seconds.",
+                timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, errorMsg]);
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     return (
@@ -133,15 +197,12 @@ export default function Chatbot() {
                             />
                             <button
                                 onClick={handleSend}
-                                disabled={!input.trim()}
+                                disabled={!input.trim() || isTyping}
                                 className="absolute right-2 p-2 bg-sage-600 text-white rounded-lg hover:bg-sage-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 <Send size={16} />
                             </button>
                         </div>
-                        <p className="text-center text-xs text-calm-400 mt-3 hidden md:block">
-                            Logic Note: This interface is ready for LLM integration via LangChain/LangFlow.
-                        </p>
                     </div>
 
                 </div>
