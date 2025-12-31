@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
+import postRoutes from './routes/posts.js';
+import authRoutes from './routes/auth.js';
+import chatRoutes from './routes/chat.js';
 
 dotenv.config();
 
@@ -20,13 +23,10 @@ app.get('/', (req, res) => {
     res.send('EmpWell Backend is Running');
 });
 
-// Post Routes will be imported here
-import postRoutes from './routes/posts.js';
-import authRoutes from './routes/auth.js';
+
 
 app.use('/api/posts', postRoutes);
 app.use('/api/auth', authRoutes);
-import chatRoutes from './routes/chat.js';
 app.use('/api/chat', chatRoutes);
 
 if (process.env.NODE_ENV !== 'production') {
